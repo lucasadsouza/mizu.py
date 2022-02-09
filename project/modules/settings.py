@@ -3,9 +3,10 @@ import re
 
 
 class Settings():
-  def __init__(self, bot, db):
+  def __init__(self, bot, db, checkpermissions):
     self.bot = bot
     self.db = db
+    self.checkpermissions = checkpermissions
 
 
   def handle_channel_id(self, channel_id):
@@ -76,14 +77,23 @@ class Settings():
 
 
   async def resetweek_channel(self, ctx, channel_id):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     await self.change_channel(ctx, channel_id, 'constant', 'constant', 'name', '"RESETWEEKCHANNEL"', 'SET002')
 
 
   async def resetweek_role(self, ctx, role_id):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     await self.change_role(ctx, role_id, 'constant', 'constant', 'name', '"RESETWEEKROLE"', 'SET003')
 
 
   async def resetweek_language(self, ctx):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     language = await self.select_language(ctx)
     self.db.updateone(f'UPDATE constant SET constant = {language} WHERE name = "RESETWEEKLANG"')
 
@@ -93,6 +103,9 @@ class Settings():
 
 
   async def daily_mizucoins(self, ctx, time):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     self.db.updateone(f'UPDATE event SET datetime = {time} WHERE code = "DMC"')
 
     await ctx.send(self.db.get_message('SET005', self.db.get_guild(ctx.guild.id, ['language'])))
@@ -100,13 +113,19 @@ class Settings():
 
 
 
-  async def guild_id(self, guild_id, new_id):
+  async def guild_id(self, ctx, guild_id, new_id):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     self.db.updateone(f'UPDATE guild SET guild_id = {new_id} WHERE guild_id = {guild_id}')
 
     await ctx.send(self.db.get_message('SET006', self.db.get_guild(ctx.guild.id, ['language'])))
 
 
-  async def guild_language(self, ctx, language):
+  async def guild_language(self, ctx):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
     language = await self.select_language(ctx)
 
     self.db.updateone(f'UPDATE guild SET language = {language} WHERE guild_id = {ctx.guild.id}')
@@ -134,7 +153,30 @@ class Settings():
     await self.change_channel(ctx, channel_id, 'guild', 'welcome_channel', 'guild_id', ctx.guild.id, 'SET012')
 
 
-  async def guild_welcome_background(self, ctx, background_image):
-    self.db.updateone(f'UPDATE image SET image = {background_image} WHERE guild_id = {ctx.guild.id}')
+  async def guild_welcome_background(self, ctx):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
+    def check_user(msg): # check if who is answering is the same that started the action
+      return msg.author == ctx.author
+
+    await (await self.bot.wait_for('message', timeout=60.0, check=check_user)).attachments[0].save('project/src/images/new-background.jpg')
+
+    with open('project/src/images/new-background.jpg', 'rb') as image:
+      background_image = image.read()
+
+    self.db.updateone(f'UPDATE image SET image = {sqlite3.Binary(background_image)} WHERE guild_id = {ctx.guild.id}')
 
     await ctx.send(self.db.get_message('SET013', self.db.get_guild(ctx.guild.id, ['language'])))
+
+
+  async def guild_welcome_message(self, ctx, message):
+    if await self.checkpermissions.admin(ctx.author, ctx.channel, ctx.guild.id):
+      return False
+
+    if message == '-default' or message == '-dft':
+      message = 'DEFAULT'
+
+    self.db.updateone(f'UPDATE guild SET welcome_message = "{message}" WHERE guild_id = {ctx.guild.id}')
+
+    await ctx.send(self.db.get_message('SET014', self.db.get_guild(ctx.guild.id, ['language'])))

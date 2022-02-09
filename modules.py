@@ -10,3 +10,4 @@ from project.modules.cleanmessages import Clean
 from project.modules.template import Template
 from project.modules.checkpermissions import CheckPermissions
 from project.modules.settings import Settings
+from project.modules.get_info import GetInfo

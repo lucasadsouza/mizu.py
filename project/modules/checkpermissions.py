@@ -3,7 +3,7 @@ class CheckPermissions():
     self.db = db
 
 
-  async def admin(self, member, guild_id, channel):
+  async def admin(self, member, channel, guild_id):
     if member.guild_permissions.administrator:
       return False
 

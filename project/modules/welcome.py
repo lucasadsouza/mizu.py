@@ -100,7 +100,12 @@ class Welcome():
     welcome_channel = self.db.get_guild(guild_id, ['welcome_channel'])
     welcome_channel = self.bot.get_channel(welcome_channel)
 
-    await welcome_channel.send(f'<@!{member.id}>', file=nextcord.File('project/src/images/welcome_picture.png'))
+    guild_welcome_message = self.db.get_guild(guild_id, ['welcome_message'])
+    if guild_welcome_message == 'DEFAULT':
+      await welcome_channel.send(f'<@!{member.id}>', file=nextcord.File('project/src/images/welcome_picture.png'))
+    
+    else:
+      await welcome_channel.send(guild_welcome_message.replace('@member', f'<@!{member.id}>'), file=nextcord.File('project/src/images/welcome_picture.png'))
 
 
   # Send a message on server showind that someone left

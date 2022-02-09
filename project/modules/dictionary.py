@@ -30,7 +30,7 @@ class Dictionary():
       ])
 
 
-    embed = Embed(title = word_definition['title'], description = '‏‏‎ ‎', colour = 14423100)
+    embed = Embed(title=word_definition['title'], description='‏‏‎ ‎', colour=self.db.get_color('decimal', 'Crimson'))
 
     for i in range(0, len(word_definition['content'])):
       embed.add_field(name=word_definition['content'][i][0], value=word_definition['content'][i][1], inline=False)

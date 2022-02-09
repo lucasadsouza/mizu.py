@@ -5,13 +5,13 @@ from datetime import datetime, timedelta
 
 from modules import KooriDB, Welcome, CheckDisboard, AlertResetWeek, Event
 from modules import Weather, Dictionary, Clean, Template, CheckPermissions
-from modules import Settings
+from modules import Settings, GetInfo
 
 
 
 
 intents = nextcord.Intents.all()
-game_activity = nextcord.Game(name='Development Tests. Version 0.3.0 - Beta', type=nextcord.ActivityType.playing)
+game_activity = nextcord.Game(name='Development Tests. Version 1.5.0 - Beta', type=nextcord.ActivityType.playing)
 
 bot = commands.Bot(command_prefix="!M", case_insensitive=False, activity=game_activity, intents=intents)
 
@@ -22,16 +22,19 @@ koori = KooriDB()
 DISCORDTOKEN = koori.get_constant('DISCORDTOKEN')
 WEATHERTOKEN = koori.get_constant('WEATHERTOKEN')
 
-settings = Settings(bot, koori)
+
 welcome = Welcome(bot, koori)
 checkDisboard = CheckDisboard(bot, koori)
 event = Event(bot, koori)
 checkpermissions = CheckPermissions(koori)
+settings = Settings(bot, koori, checkpermissions)
 alertResetWeek = AlertResetWeek(bot, koori, event)
 weather = Weather(WEATHERTOKEN, bot, koori)
 dictionary = Dictionary(koori)
 clean = Clean(koori)
 template = Template(bot, koori, checkpermissions)
+getinfo = GetInfo(koori)
+
 
 event.run_events(['DMC', 'DBA', 'DRW'])
 
@@ -52,7 +55,13 @@ async def on_ready ():
 async def on_message (message):
   # Logs users messages
   print(f'{message.guild.name} - #{message.channel.name}>> @{message.author.display_name}: {message.content}')
-  print(f'{message.attachments}') # continuar teste amanhã
+
+  for attachment in message.attachments:
+    print(f'{attachment.filename} - {attachment.url}')
+
+  for embed in message.embeds:
+    print(f'{embed.title} - {embed.type}\n{embed.description}\n{embed.fields}\n{embed.footer}')
+
   # Check if the server was bumped successfully and register an alert to bump again
   await checkDisboard.bumped(message)
 
@@ -229,41 +238,66 @@ async def settings_guild_language(ctx):
 
 # Change the Guild log channel id
 @settings_guild.command(name='log_channel', aliases=['log-channel'])
-async def settings_guild_log_channel(ctx, log_channel_id):
-  await settings.guild_log_channel(ctx, log_channel_id)
+async def settings_guild_log_channel(ctx, channel_id):
+  await settings.guild_log_channel(ctx, channel_id)
 
 # Change the Guild sync channel id
 @settings_guild.command(name='sync_channel', aliases=['sync-channel'])
-async def settings_guild_sync_channel(ctx, sync_channel_id):
-  await settings.guild_sync_channel(ctx, sync_channel_id)
+async def settings_guild_sync_channel(ctx, channel_id):
+  await settings.guild_sync_channel(ctx, channel_id)
 
 # Change the Guild Disboard channel id
 @settings_guild.command(name='disboard_channel', aliases=['disboard-channel'])
-async def settings_guild_disboard_channel(ctx, disboard_channel_id):
-  await settings.guild_disboard_channel(ctx, disboard_channel_id)
+async def settings_guild_disboard_channel(ctx, channel_id):
+  await settings.guild_disboard_channel(ctx, channel_id)
 
 # Change the Guild Disboard role id 
 @settings_guild.command(name='disboard_role', aliases=['disboard-role'])
-async def settings_guild_disboard_role(ctx, disboard_role_id):
-  await settings.guild_disboard_role(ctx, disboard_role_id)
+async def settings_guild_disboard_role(ctx, role_id):
+  await settings.guild_disboard_role(ctx, role_id)
 
 @settings_guild.command(name='welcome_channel', aliases=['welcome-channel'])
-async def settings_guild_welcome_channel(ctx, welcome_channel_id):
-  await settings.guild_welcome_channel(ctx, welcome_channel_id)
+async def settings_guild_welcome_channel(ctx, channel_id):
+  await settings.guild_welcome_channel(ctx, channel_id)
 
 # Change the Guild welcome background
 @settings_guild.command(name='welcome_background', aliases=['welcome_bg', 'welcome-background', 'welcome-bg'])
-async def settings_guild_welcome_background(ctx, background_id):
-  await settings.guild_welcome_background(ctx, background_id)
+async def settings_guild_welcome_background(ctx):
+  await settings.guild_welcome_background(ctx) # Not Working
+
+# Change the Guild welcome message
+@settings_guild.command(name='welcome_message', aliases=['welcome_msg', 'welcome-message', 'welcome-msg'])
+async def settings_guild_welcome_message(ctx, *, message):
+  await settings.guild_welcome_message(ctx, message)
 
 
+# Get info about the guild and its members
+@bot.group(invoke_without_command=True, name='get-info', aliases=['get'])
+async def get_info(ctx):
+  pass
+
+@get_info.command(name='profile-picture', aliases=['pfp'])
+async def get_info_profile_picture(ctx, member: nextcord.Member):
+  await getinfo.profile_picture(ctx, member)
+
+@get_info.command(name='emoji')
+async def get_info_emoji(ctx, emoji: nextcord.Emoji):
+  await getinfo.emoji(ctx, emoji)
+
+@get_info_emoji.error
+async def get_info_emoji_error(ctx, error):
+  await ctx.send(error)
 
 
 # Command to test commands
 @bot.command(name='test')
 async def test_func(ctx):
-  #await alertResetWeek.reseted(ctx)
-  await settings.resetweek_language(ctx)
+  # await alertResetWeek.reseted(ctx)
+  # await settings.resetweek_language(ctx)
+  # guild = bot.get_guild()
+  # member = guild.get_member()
+  # await welcome.on_member_join(member)
+  pass
 
 
 
