@@ -1,0 +1,17 @@
+*.json
+*.db
+*.ttf
+*.png
+*.jpeg
+*.jpg
+*.zip
+
+__pycache__
+.vscode
+Include
+Lib
+Scripts
+
+commit.bat
+commit.py
+pyvenv.cfg
