@@ -76,19 +76,20 @@ class MentionableDropdown(nextcord.ui.MentionableSelect):
 
 
 class Dropdown(nextcord.ui.View):
-    def __init__(self, type: str='default', placeholder: str='', min_value: int=1, max_value: int=1, callback: callable=None, options: list[dict]=None, channel_type: list[nextcord.ChannelType]=None):
-        super().__init__()
-        if type == 'default':
-          self.add_item(StringDropdown(options, placeholder, min_value, max_value, callback))
+    def __init__(self, type: str='string', placeholder: str='', min_value: int=1, max_value: int=1, callback: callable=None, options: list[dict]=None, channel_type: list[nextcord.ChannelType]=None):
+      super().__init__()
 
-        elif type == 'channel':
-          self.add_item(ChannelDropdown(placeholder, min_value, max_value, callback, channel_type))
+      if type == 'string':
+        self.add_item(StringDropdown(options, placeholder, min_value, max_value, callback))
 
-        elif type == 'role':
-          self.add_item(RoleDropdown(placeholder, min_value, max_value, callback))
+      elif type == 'channel':
+        self.add_item(ChannelDropdown(placeholder, min_value, max_value, callback, channel_type))
 
-        elif type == 'user':
-          self.add_item(UserDropdown(placeholder, min_value, max_value, callback))
+      elif type == 'role':
+        self.add_item(RoleDropdown(placeholder, min_value, max_value, callback))
 
-        elif type == 'mentionable':
-          self.add_item(MentionableDropdown(placeholder, min_value, max_value, callback))
+      elif type == 'user':
+        self.add_item(UserDropdown(placeholder, min_value, max_value, callback))
+
+      elif type == 'mentionable':
+        self.add_item(MentionableDropdown(placeholder, min_value, max_value, callback))
