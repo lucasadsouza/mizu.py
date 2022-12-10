@@ -46,6 +46,12 @@ class Image(Base):
 
     return img_bytes_arr
 
+  def to_blob(self):
+    img_bytes_arr = io.BytesIO()
+    self.rendered_image.save(img_bytes_arr, format='PNG')
+
+    return img_bytes_arr.getvalue()
+
   def clone(self) -> Image:
     return copy.deepcopy(self)
 
