@@ -39,6 +39,21 @@ class Guild(mizu.classes.Base):
 
     self.update()
 
+  def set_channel(self, type: str, id_: int):
+    if type == 'log':
+      self.log_channel = id_
+    
+    if type == 'sync':
+      self.sync_channel = id_
+
+    if type == 'disboard':
+      self.sync_channel = id_
+    
+    if type == 'welcome':
+      self.welcome_channel = id_
+
+    self.update()
+
   def load_welcome_image(self) -> str:
     if not os.path.exists(self.temp_path):
       os.mkdir(self.temp_path)
