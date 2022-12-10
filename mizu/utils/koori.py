@@ -96,6 +96,12 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return language
 
+  def fetch_available_languages(self, code: str) -> list:
+    if not self.exists('language', code=code):
+      self.errorraiser.raise_error('language', 'KOO003')
+
+    return self.fetch(qb.SELECT('code', code).FROM('language').get_query())
+
   def fetch_message(self, code: str) -> mizu.classes.Message:
     if not self.exists('message', code=code):
       self.errorraiser.raise_error('message', 'KOO004')
@@ -223,7 +229,7 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return guild
 
-  async def fetch_image(self, id_: int) -> mizu.classes.Image:
+  def fetch_image(self, id_: int) -> mizu.classes.Image:
     if not self.exists('image', id=id_):
       self.errorraiser.raise_error('image', 'KOO015')
 
