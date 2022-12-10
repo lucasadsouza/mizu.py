@@ -34,6 +34,11 @@ class Guild(mizu.classes.Base):
   def add_member(self, member: Member):
     self.members[member.id] = member
 
+  def set_language(self, language: mizu.classes.Language):
+    self.language = language
+
+    self.update()
+
   def load_welcome_image(self) -> str:
     if not os.path.exists(self.temp_path):
       os.mkdir(self.temp_path)
