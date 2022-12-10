@@ -272,9 +272,20 @@ class Koori(dbtools.databases.SQLiteDB):
     self.insert(qb.INSERT_INTO('image').VALUES(id_, image).get_query())
 
   def update_guild(self, guild: mizu.classes.Guild):
-    self.update(qb.UPDATE('guild').SET(language=guild.language.code, log_channel=guild.log_channel, sync_channel=guild.sync_channel, disboard_channel=guild.disboard_channel, disboard_role=guild.disboard_role, welcome_channel=guild.welcome_channel, welcome_message=guild.welcome_message).WHERE(qb.EQUALS('id', guild.id)).get_query())
+    if not self.exists('guild', id=guild.id):
+      self.errorraiser.raise_error('guild', 'KOO010')
 
-    self.update(qb.UPDATE('image').SET(image=guild.welcome_image).WHERE(qb.EQUALS('guild_id', guild.id)).get_query())
+    self.update(qb.UPDATE('guild').SET(
+      language=guild.language.code,
+      log_channel=guild.log_channel,
+      sync_channel=guild.sync_channel,
+      disboard_channel=guild.disboard_channel,
+      disboard_role=guild.disboard_role,
+      welcome_channel=guild.welcome_channel,
+      welcome_message=guild.welcome_message
+    ).WHERE(qb.EQUALS('id', guild.id)).get_query())
+
+    self.update(qb.UPDATE('image').SET(image=guild.welcome_image.to_blob()).WHERE(qb.EQUALS('id', guild.id)).get_query())
 
   def update_event(self, event: mizu.classes.Event):
     self.update(qb.UPDATE('event').SET(state=event.state, datetime=event.datetime).WHERE(qb.EQUALS('guild_id', event.guild_id), qb.AND, qb.EQUALS('code', event.code)).get_query())
