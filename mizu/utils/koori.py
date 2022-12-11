@@ -266,11 +266,11 @@ class Koori(dbtools.databases.SQLiteDB):
     if self.exists('guild', id=guild.id):
       self.errorraiser.raise_error('guild', 'KOO011')
     
+    guild_language = 'en-US'
     if guild.preferred_locale in [ code[0] for code in self.fetch_available_languages(label=False) ]:
-      self.insert(qb.INSERT_INTO('guild', ['id', 'language']).VALUES(guild.id, guild.preferred_locale).get_query())
+      guild_language = guild.preferred_locale
 
-    else:
-      self.insert(qb.INSERT_INTO('guild', ['id']).VALUES(guild.id).get_query())
+    self.insert(qb.INSERT_INTO('guild', ['id', 'language', 'welcome_message']).VALUES(guild.id, guild_language, self.fetch_message('SWM004').get_message(guild_language)).get_query())
 
     background_img = self.fetch_image(0)
     self.insert_welcome_image(id_, background_img)
