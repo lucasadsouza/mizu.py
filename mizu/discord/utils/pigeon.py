@@ -25,3 +25,6 @@ class Pigeon(mizu.classes.Base):
     elif channel_id:
       channel = self.bot.get_channel(channel_id)
       await channel.send(message.get_message(language, replaceable), **options)
+
+  async def send_modal(self, interaction: nextcord.Interaction, modal: nextcord.ui.Modal):
+    await interaction.response.send_modal(modal)
