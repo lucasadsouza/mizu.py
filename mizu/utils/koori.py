@@ -313,7 +313,10 @@ class Koori(dbtools.databases.SQLiteDB):
       welcome_message=guild.welcome_message
     ).WHERE(qb.EQUALS('id', guild.id)).get_query())
 
-    self.update(qb.UPDATE('image').SET(image=guild.welcome_image.to_blob()).WHERE(qb.EQUALS('id', guild.id)).get_query())
+    self.update_welcome_image(guild.id, guild.welcome_image.to_blob())
+
+  def update_welcome_image(self, id_: int, image: bytes):
+    self.update(qb.UPDATE('welcome_image').SET(image=image).WHERE(qb.EQUALS('id', id_)).get_query())
 
   def update_event(self, event: mizu.classes.Event):
     self.update(qb.UPDATE('event').SET(state=event.state, datetime=event.datetime).WHERE(qb.EQUALS('guild_id', event.guild_id), qb.AND, qb.EQUALS('code', event.code)).get_query())
