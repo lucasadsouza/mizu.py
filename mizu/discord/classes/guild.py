@@ -59,6 +59,11 @@ class Guild(mizu.classes.Base):
 
     self.update()
 
+  def set_welcome_message(self, message: str):
+    self.welcome_message = message
+
+    self.update()
+
   def load_welcome_image(self) -> str:
     if not os.path.exists(self.temp_path):
       os.mkdir(self.temp_path)
