@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import nextcord
 from nextcord.ext import commands
 import mizu.classes, mizu.utils
 
@@ -8,11 +9,19 @@ class Pigeon(mizu.classes.Base):
     self.bot = bot
     self.db = db
 
-  async def send(self, channel_id: int, message_code: str, language_code: str, replaceable: list[any]=[], user_id: int=None):
-    if user_id:
-      language_code = language_code
+  async def send(self, message_code: str, language: mizu.classes.Language, channel_id: int=None, interaction: nextcord.Interaction=None, embed: nextcord.Embed=None, view: nexcord.ui.view=None, replaceable: list[any]=[]):
+    message = self.db.fetch_message(message_code)
+    options = {}
 
-    message = self.db.get_message(message_code)
+    if embed:
+      options['embed'] = embed
+    
+    if view:
+      options['view'] = view
 
-    channel = self.bot.get_channel(channel_id)
-    await channel.send(message.get_message(language_code, replaceable))
+    if interaction:
+      await interaction.send(message.get_message(language, replaceable), **options)
+
+    elif channel_id:
+      channel = self.bot.get_channel(channel_id)
+      await channel.send(message.get_message(language, replaceable), **options)
