@@ -88,10 +88,10 @@ class Koori(dbtools.databases.SQLiteDB):
       columns = self.fetch(qb.SELECT('name').FROM(qb.PRAGMA_TABLE_INFO('language')).get_query())
 
       labels = []
-      for column_name, label in zip(columns[1:], response[1:]):
+      for column_name, label in zip(columns[2:], response[2:]):
         labels.append((column_name[0], label))
 
-      language = mizu.factories.language_factory([self, response[0]], [*labels])
+      language = mizu.factories.language_factory([self, response[0], response[1]], [*labels])
       self.cached.languages.push({'code': code, 'value': language})
 
       return language
@@ -101,9 +101,9 @@ class Koori(dbtools.databases.SQLiteDB):
       self.errorraiser.raise_error('language', 'KOO003')
 
     if labels:
-      return self.fetch(qb.SELECT('code', code).FROM('language').get_query())
+      return self.fetch(qb.SELECT('code', code).FROM('language').WHERE(qb.EQUALS('available', True)).get_query())
 
-    return sself.fetch(qb.SELECT('code').FROM('language').get_query())
+    return self.fetch(qb.SELECT('code').FROM('language').WHERE(qb.EQUALS('available', True)).get_query())
 
   def fetch_message(self, code: str) -> mizu.classes.Message:
     if not self.exists('message', code=code):
