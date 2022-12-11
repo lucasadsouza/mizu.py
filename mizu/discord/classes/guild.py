@@ -54,6 +54,11 @@ class Guild(mizu.classes.Base):
 
     self.update()
 
+  def set_disboard_role(self, role: str):
+    self.disboard_role = role
+
+    self.update()
+
   def load_welcome_image(self) -> str:
     if not os.path.exists(self.temp_path):
       os.mkdir(self.temp_path)
