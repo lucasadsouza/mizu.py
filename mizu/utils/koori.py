@@ -224,7 +224,7 @@ class Koori(dbtools.databases.SQLiteDB):
     
       events_list = [ self.fetch_event(event[1], event[0]) for event in events ]
       members_list = [ await self.fetch_member(member[0]) for member in members ]
-      background_img = self.fetch_image(id_)
+      background_img = self.fetch_welcome_image(id_)
 
       guild = mizu.factories.guild_factory([self.observer, id_, raw_guild, self.fetch_language(response[1]), *response[2:], background_img], events_list, members_list)
   
@@ -247,6 +247,21 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return image
 
+  def fetch_welcome_image(self, id_: int) -> mizu.classes.Image:
+    if not self.exists('welcome_image', id=id_):
+      self.errorraiser.raise_error('image', 'KOO015')
+
+    try:
+      return self.cached.images.search('id', id_)['value']
+
+    except IndexError:
+      image = self.fetchone(qb.SELECT('image').FROM('welcome_image').WHERE(qb.EQUALS('id', id_)).get_query())[0]
+      image = mizu.classes.Image(image)
+
+      self.cached.images.push({'id': id_, 'value': image})
+
+      return image
+
   def insert_guild(self, guild: nextcord.Guild):
     if self.exists('guild', id=guild.id):
       self.errorraiser.raise_error('guild', 'KOO011')
@@ -257,8 +272,8 @@ class Koori(dbtools.databases.SQLiteDB):
     else:
       self.insert(qb.INSERT_INTO('guild', ['id']).VALUES(guild.id).get_query())
 
-    background_img = self.fetchone(qb.SELECT('image').FROM('image').WHERE(qb.EQUALS('guild_id', 0)).get_query())[0]
-    self.insert_image(id_, background_img)
+    background_img = self.fetch_image(0)
+    self.insert_welcome_image(id_, background_img)
 
   def insert_user(self, id_: int, language_code: str):
     if self.exists('user', id=id_):
@@ -277,6 +292,12 @@ class Koori(dbtools.databases.SQLiteDB):
       self.errorraiser.raise_error('image', 'KOO014')
 
     self.insert(qb.INSERT_INTO('image').VALUES(id_, image).get_query())
+
+  def insert_welcome_image(self, id_: int, image: bytes):
+    if self.exists('welcome_image', id=id_):
+      self.errorraiser.raise_error('image', 'KOO014')
+
+    self.insert(qb.INSERT_INTO('welcome_image').VALUES(id_, image).get_query())
 
   def update_guild(self, guild: mizu.classes.Guild):
     if not self.exists('guild', id=guild.id):
