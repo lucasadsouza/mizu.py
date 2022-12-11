@@ -247,11 +247,15 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return image
 
-  def insert_guild(self, id_: int):
-    if self.exists('guild', id=id_):
+  def insert_guild(self, guild: nextcord.Guild):
+    if self.exists('guild', id=guild.id):
       self.errorraiser.raise_error('guild', 'KOO011')
     
-    self.insert(qb.INSERT_INTO('guild', ['id']).VALUES(id_).get_query())
+    if guild.preferred_locale in [ code[0] for code in self.fetch_available_languages(label=False) ]:
+      self.insert(qb.INSERT_INTO('guild', ['id', 'language']).VALUES(guild.id, guild.preferred_locale).get_query())
+
+    else:
+      self.insert(qb.INSERT_INTO('guild', ['id']).VALUES(guild.id).get_query())
 
     background_img = self.fetchone(qb.SELECT('image').FROM('image').WHERE(qb.EQUALS('guild_id', 0)).get_query())[0]
     self.insert_image(id_, background_img)
