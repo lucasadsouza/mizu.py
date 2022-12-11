@@ -96,11 +96,14 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return language
 
-  def fetch_available_languages(self, code: str) -> list:
+  def fetch_available_languages(self, code: str=None, labels: bool=True) -> list:
     if not self.exists('language', code=code):
       self.errorraiser.raise_error('language', 'KOO003')
 
-    return self.fetch(qb.SELECT('code', code).FROM('language').get_query())
+    if labels:
+      return self.fetch(qb.SELECT('code', code).FROM('language').get_query())
+
+    return sself.fetch(qb.SELECT('code').FROM('language').get_query())
 
   def fetch_message(self, code: str) -> mizu.classes.Message:
     if not self.exists('message', code=code):
