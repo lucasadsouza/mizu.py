@@ -9,7 +9,7 @@ class Pigeon(mizu.classes.Base):
     self.bot = bot
     self.db = db
 
-  async def send(self, message_code: str, language: mizu.classes.Language, channel_id: int=None, interaction: nextcord.Interaction=None, embed: nextcord.Embed=None, view: nexcord.ui.view=None, replaceable: list[any]=[]):
+  async def send(self, message_code: str, language: mizu.classes.Language, channel_id: int=None, interaction: nextcord.Interaction=None, embed: nextcord.Embed=None, view: nexcord.ui.view=None, file_: nextcord.File=None, replaceable: list[any]=[]):
     message = self.db.fetch_message(message_code)
     options = {}
 
@@ -18,6 +18,9 @@ class Pigeon(mizu.classes.Base):
     
     if view:
       options['view'] = view
+
+    if file_:
+      options['file'] = file_
 
     if interaction:
       await interaction.send(message.get_message(language, replaceable), **options)
