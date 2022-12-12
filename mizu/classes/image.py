@@ -8,7 +8,7 @@ from mizu.classes import Base
 
 
 class Image(Base):
-  def __init__(self, image: bytes or tuple[int, int, str]=(600, 600, '#FFFFFF'), font: str='src/fonts/Murecho.ttf'):
+  def __init__(self, image: bytes or tuple[int, int, str]=(600, 600, '#FFFFFF'), font: str='src/fonts/Murecho.ttf', optimize:int or float=False):
     self.font = font
     self.has_mask = False
     self.elements = mizu.utils.Stack()
@@ -18,6 +18,9 @@ class Image(Base):
 
     else:
       self.image = self.create_canvas(image[0], image[1], image[2])
+
+    if optimize and self.get_bytes_size() > optimize:
+      self.image = PIL.Image.open(io.BytesIO(self.optimize()))
 
     self.dominant_color = self.get_dominant_color()
     self.rendered_image = self.image
@@ -51,6 +54,23 @@ class Image(Base):
     self.rendered_image.save(img_bytes_arr, format='PNG')
 
     return img_bytes_arr.getvalue()
+
+  def optimize(self):
+    img_bytes_arr = io.BytesIO()
+
+    self.image.save(img_bytes_arr, format='PNG', optimize=True, quality=85)
+
+    return img_bytes_arr.getvalue()
+
+  def get_bytes_size(self):
+    img_bytes_arr = io.BytesIO()
+    try:
+      self.rendered_image.save(img_bytes_arr, format='PNG', quality='keep')
+    
+    except AttributeError:
+      self.image.save(img_bytes_arr, format='PNG', quality='keep')
+
+    return img_bytes_arr.tell()
 
   def clone(self) -> Image:
     return copy.deepcopy(self)
