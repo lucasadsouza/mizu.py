@@ -247,6 +247,9 @@ class Koori(dbtools.databases.SQLiteDB):
 
       return image
 
+  def fetch_images(self) -> list[mizu.classes.Image]:
+    return self.fetch(qb.SELECT(qb.ALL).FROM('image').get_query())
+
   def fetch_welcome_image(self, id_: int) -> mizu.classes.Image:
     if not self.exists('welcome_image', id=id_):
       self.errorraiser.raise_error('image', 'KOO015')
