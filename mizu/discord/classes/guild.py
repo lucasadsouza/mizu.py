@@ -59,6 +59,25 @@ class Guild(mizu.classes.Base):
 
     self.update()
 
+  def set_welcome_image(self, image: mizu.classes.Image):
+    width, height = image.get_size()
+
+    if width > 1980:
+      ratio = min(width, height) / max(width, height)
+
+      width = 1980
+      height = round(width * ratio)
+
+    elif height > 1980:
+      ratio = min(width, height) / max(width, height)
+
+      height = 1980
+      width = round(height * ratio)
+
+    self.welcome_image = image.resize(width, height)
+
+    self.update()
+
   def set_welcome_message(self, message: str):
     self.welcome_message = message
 
