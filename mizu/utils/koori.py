@@ -270,13 +270,12 @@ class Koori(dbtools.databases.SQLiteDB):
       self.errorraiser.raise_error('guild', 'KOO011')
     
     guild_language = 'en-US'
-    if guild.preferred_locale in [ code[0] for code in self.fetch_available_languages(label=False) ]:
+    if guild.preferred_locale in [ code[0] for code in self.fetch_available_languages(labels=False) ]:
       guild_language = guild.preferred_locale
 
-    self.insert(qb.INSERT_INTO('guild', ['id', 'language', 'welcome_message']).VALUES(guild.id, guild_language, self.fetch_message('SWM004').get_message(guild_language)).get_query())
+    self.insert(qb.INSERT_INTO('guild', ['id', 'language', 'welcome_message']).VALUES(guild.id, guild_language, self.fetch_message('GWM004').get_message(self.fetch_language(guild_language))).get_query())
 
-    background_img = self.fetch_image(0)
-    self.insert_welcome_image(id_, background_img)
+    self.insert_welcome_image(guild.id, self.fetch_image(0).to_blob())
 
   def insert_user(self, id_: int, language_code: str):
     if self.exists('user', id=id_):
