@@ -97,7 +97,7 @@ class Koori(dbtools.databases.SQLiteDB):
       return language
 
   def fetch_available_languages(self, code: str=None, labels: bool=True) -> list:
-    if not self.exists('language', code=code):
+    if code and not self.exists('language', code=code):
       self.errorraiser.raise_error('language', 'KOO003')
 
     if labels:
